@@ -34,12 +34,9 @@ header {
   }
 }
 
-main {
+.main {
   background-color: #e4fdde;
-
-  .contents {
-    display: flex;
-  }
+  display: flex;
 
   .addRemoveBtn {
     display: none;
