@@ -53,15 +53,28 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
+
+type Tag = {
+  text: string;
+  isEditing: boolean;
+}
+
+type Record = {
+  type: 'income' | 'expense';
+  date: string;
+  amount: number | '';
+  memo: string;
+  tag: string;
+}
 
 const store = useStore();
 const newGlobalTag = ref('');
 const error = ref('');
 
-const newRecord = reactive({
+const newRecord = reactive<Record> ({
   type: 'expense',
   date: new Date().toISOString().slice(0, 10),
   amount: '',
@@ -69,14 +82,14 @@ const newRecord = reactive({
   tag: ''
 });
 
-const globalTags = computed(() => store.getters.globalTags);
+const globalTags = computed(() => store.getters.globalTags as Tag[]);
 const isComposing = ref(false);
-const tagInputRefs = ref({});
+const tagInputRefs = ref<{[key: number]: HTMLInputElement}>({});
 
-function editTag(tag, index) {
+function editTag(tag: Tag, index: number) {
   store.dispatch('updateGlobalTag', { index, tag: { ...tag, isEditing: true } });
   nextTick(() => {
-    const input = document.querySelector(`li:nth-child(${index + 1}) input`);
+    const input = document.querySelector(`li:nth-child(${index + 1}) input`) as HTMLInputElement | null;
     if (input) {
       input.focus();
       input.setSelectionRange(input.value.length, input.value.length);
@@ -84,7 +97,7 @@ function editTag(tag, index) {
   });
 }
 
-function finishEditing(tag, index, event) {
+function finishEditing(tag: Tag, index: number, event?: Event): void {
   if (event) {
     event.preventDefault();
   }
@@ -93,23 +106,23 @@ function finishEditing(tag, index, event) {
   }
 }
 
-function compositionStarted() {
+function compositionStarted(): void {
   // console.log('IME開始だよ');
   isComposing.value = true;
 }
 
-function compositionEnded() {
+function compositionEnded(): void {
   // console.log('IME終了だよ');
   isComposing.value = false;
 }
 
-function handleEnter() {
+function handleEnter(): void {
   if (!isComposing.value) {
     addGlobalTag();
   }
 }
 
-function addGlobalTag() {
+function addGlobalTag(): void {
   error.value = '';
 
   if (!newGlobalTag.value) {
@@ -117,7 +130,7 @@ function addGlobalTag() {
   } else if (globalTags.value.some(tag => tag.text === newGlobalTag.value)) {
     error.value = 'このタグは既に存在します。';
   } else {
-    const newTag = {
+    const newTag: Tag = {
       text: newGlobalTag.value,
       isEditing: false
     };
@@ -126,16 +139,16 @@ function addGlobalTag() {
   }
 }
 
-function removeGlobalTag(index) {
+function removeGlobalTag(index: number): void {
   store.dispatch('removeGlobalTag', index);
 }
 
-function addRecord() {
+function addRecord(): void {
   store.dispatch('addRecord', { ...newRecord, id: Date.now() });
   resetNewRecord();
 }
 
-function resetNewRecord() {
+function resetNewRecord(): void {
   Object.assign(newRecord, {
     date: new Date().toISOString().slice(0, 10),
     type: 'expense',

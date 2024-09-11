@@ -33,9 +33,18 @@
 
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
+
+type Record = {
+  id: number;
+  type: 'income' | 'expense';
+  amount: number;
+  tag: string;
+  memo: string;
+  date: string;
+}
 
 const store = useStore();
 
@@ -45,14 +54,14 @@ const store = useStore();
 const currentYear = ref(new Date().getFullYear());
 const currentMonth = ref(new Date().getMonth() + 1);
 
-function formatDate(date) {
+function formatDate(date: Date): string {
   const d = new Date(date);
   const month = `${d.getMonth() + 1}`.padStart(2, '0');
   const day = `${d.getDate()}`.padStart(2, '0');
   return `${d.getFullYear()}-${month}-${day}`;
 }
 
-function moveToPreviousMonth() {
+function moveToPreviousMonth(): void {
   if (currentMonth.value === 1) {
     currentMonth.value = 12;
     currentYear.value -= 1;
@@ -61,7 +70,7 @@ function moveToPreviousMonth() {
   }
 }
 
-function moveToNextMonth() {
+function moveToNextMonth():void {
   if (currentMonth.value === 12) {
     currentMonth.value = 1;
     currentYear.value += 1;
@@ -74,8 +83,8 @@ const records = computed(() => store.getters.records);
 const globalTags = computed(() => store.getters.globalTags);
 
 const recordsByDate = computed(() => {
-  const grouped = {};
-  records.value.forEach(record => {
+  const grouped: { [key: string]: Record[] } = {};
+  records.value.forEach((record: Record) => {
     const date = new Date(record.date).toISOString().slice(0, 10);
     if (!grouped[date]) {
       grouped[date] = [];
@@ -86,7 +95,7 @@ const recordsByDate = computed(() => {
 });
 
 const daysInCurrentMonth = computed(() => {
-  const days = [];
+  const days: Date[] = [];
   const month = currentMonth.value - 1;
   const year = currentYear.value;
   let day = new Date(year, month, 1);
@@ -97,30 +106,30 @@ const daysInCurrentMonth = computed(() => {
   return days;
 });
 
-function numberWithCommas(x) {
+function numberWithCommas(x: number): string {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function deleteRecord(id) {
+function deleteRecord(id: number): void {
   store.dispatch('removeRecord', id);
 }
 
 const currentMonthRecords = computed(() => {
-  return records.value.filter(record => {
+  return records.value.filter((record: Record) => {
     const recordDate = new Date(record.date);
     return recordDate.getFullYear() === currentYear.value && recordDate.getMonth() + 1 === currentMonth.value;
   });
 });
 
 const currentMonthIncome = computed(() => {
-  return currentMonthRecords.value.reduce((sum, record) => {
-    return record.type === 'income' ? sum + parseFloat(record.amount) : sum;
+  return currentMonthRecords.value.reduce((sum: number, record: Record) => {
+    return record.type === 'income' ? sum + record.amount : sum;
   }, 0);
 });
 
 const currentMonthExpense = computed(() => {
-  return currentMonthRecords.value.reduce((sum, record) => {
-    return record.type === 'expense' ? sum + parseFloat(record.amount) : sum;
+  return currentMonthRecords.value.reduce((sum: number, record: Record) => {
+    return record.type === 'expense' ? sum + record.amount : sum;
   }, 0);
 });
 
