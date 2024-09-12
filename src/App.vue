@@ -8,19 +8,22 @@
 </template>
 
 
-<script>
+<script lang="ts">
+  import { defineComponent } from 'vue'
+  import { useStore } from 'vuex'
   import Header from './components/Header.vue'
   import Ledger from './views/Ledger.vue'
 
-  export default {
+  export default defineComponent({
     name: 'App',
-    created() {
-      this.$store.dispatch('initializeGlobalTags');
-    },
     components: {
       Header,
       Ledger
     },
-  };
+    setup() {
+      const store = useStore()
+      store.dispatch('initializeGlobalTags')
+    }
+  })
 </script>
 

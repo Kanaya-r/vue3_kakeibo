@@ -3,7 +3,7 @@
   <ExpenseList />
 </template>
 
-<script>
+<script lang="ts">
 import ExpenseForm from '../components/ExpenseForm.vue';
 import ExpenseList from '../components/ExpenseList.vue';
 

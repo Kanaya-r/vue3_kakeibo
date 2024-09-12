@@ -38,7 +38,7 @@
                 @compositionstart="compositionStarted"
                 @compositionend="compositionEnded"
                 @keydown.enter="finishEditing(tag, index, $event)"
-                :ref="el => { if (el) tagInputRefs[index] = el }"
+                :ref="(el: HTMLInputElement | null) => { if (el) tagInputRefs[index] = el }"
               >
               <button type="button" class="enter" @click="finishEditing(tag, index, $event)">決定</button>
             </template>
@@ -65,7 +65,7 @@ type Tag = {
 type Record = {
   type: 'income' | 'expense';
   date: string;
-  amount: number | '';
+  amount: string | '';
   memo: string;
   tag: string;
 }
